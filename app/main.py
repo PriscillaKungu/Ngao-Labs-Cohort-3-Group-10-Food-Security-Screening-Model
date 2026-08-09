@@ -1,37 +1,4 @@
-import pickle
 
-artifact_bundle = {
-    "model": final_model,
-    "label_encoder": le,
-    "kept_cols": kept_cols,
-    "dropped_cols": dropped_cols,
-    "cat_cols": cat_cols,
-    "bin_cols": bin_cols,
-    "num_cols": num_cols,
-    "asset_cols": asset_cols,
-    "exp_cols": exp_cols,
-    "transfer_value_cols": transfer_value_cols,
-    "s2_q21_noadults_median": s2_q21_noadults_median,
-    "numeric_medians": numeric_medians,
-    "county_rate_map": county_rate_map,
-    "global_insecurity_rate": global_insecurity_rate,
-    "training_feature_columns": training_feature_columns,
-}
-
-with open("model_artifacts.pkl", "wb") as f:
-    pickle.dump(artifact_bundle, f)
-
-Run that cell, download model_artifacts.pkl, and put it in app/ in your repo.
-
-
-
-File size check: GitHub blocks files over 100 MB (warns above ~50 MB). Tree models like these are usually a few MB, so you're almost certainly fine. If it's large, use Git LFS (git lfs track "*.pkl") before committing.
-
-Step 2 — Build the web app
-
-Create app/main.py. This wraps preprocess_new_household() from your notebook and exposes both a single-household endpoint and a batch CSV endpoint:
-
-python
 import pickle
 import pandas as pd
 import numpy as np
