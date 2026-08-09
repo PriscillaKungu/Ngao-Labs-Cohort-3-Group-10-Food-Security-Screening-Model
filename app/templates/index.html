@@ -1,27 +1,305 @@
 <!DOCTYPE html>
 <html>
-<head><title>Household Food Security Screening</title></head>
+<head>
+  <title>Household Food Security Screening</title>
+  <style>
+    body { font-family: sans-serif; max-width: 700px; margin: 2rem auto; padding: 0 1rem; }
+    fieldset { margin-bottom: 1.5rem; }
+    label { display: block; margin: 0.5rem 0; }
+    input[type="number"], input[type="text"], select { width: 220px; }
+    input[type="checkbox"] { width: auto; margin-right: 0.5rem; }
+    .checkbox-label { display: inline-flex; align-items: center; margin-right: 1.5rem; }
+    button { padding: 0.6rem 1.2rem; font-size: 1rem; margin-top: 1rem; }
+    pre { background: #f4f4f4; padding: 1rem; white-space: pre-wrap; }
+  </style>
+</head>
 <body>
   <h2>Screen a household</h2>
   <p>For bulk screening (recommended for caseworkers), POST a CSV to
      <code>/predict-batch</code> instead — see the manual.</p>
+
   <form id="f">
-    <label>Household size: <input name="hhsize" type="number"></label><br>
-    <label>Head age: <input name="head_age" type="number"></label><br>
-    <!-- add one input per field the model needs; see training_feature_columns
-         in the notebook for the full list -->
+
+    <fieldset>
+      <legend>Household basics</legend>
+      <label>Household size: <input name="hhsize" type="number" min="1" required></label>
+      <label>Head of household age: <input name="head_age" type="number" min="0" required></label>
+      <label>Head of household age group:
+        <select name="head_age_3group">
+          <option value="">-- select --</option>
+          <option value="18">18–34</option>
+          <option value="35">35–59</option>
+          <option value="60">60+</option>
+        </select></label>
+      <label>Head of household gender
+        <span style="font-size:0.8em;color:#a00;">(best-guess mapping — verify before relying on results)</span>:
+        <select name="head_gender">
+          <option value="">-- select --</option>
+          <option value="0">Male (inferred)</option>
+          <option value="1">Female (inferred)</option>
+        </select></label>
+      <label>Head of household education level:
+        <select name="head_education_level">
+          <option value="">-- select --</option>
+          <option value="0.0">No Formal Education</option>
+          <option value="1.0">Pre-primary</option>
+          <option value="2.0">Primary</option>
+          <option value="3.0">Post-primary, vocational</option>
+          <option value="4.0">Secondary</option>
+          <option value="5.0">College, middle-level</option>
+          <option value="6.0">University undergraduate</option>
+          <option value="7.0">University postgraduate</option>
+          <option value="8.0">Madrassa/Duksi</option>
+        </select></label>
+      <label>Strata
+        <span style="font-size:0.8em;color:#888;">(raw sampling code — meaning not documented in available files)</span>:
+        <select name="strata">
+          <option value="">-- select --</option>
+          <option value="6">Stratum 6</option>
+          <option value="7">Stratum 7</option>
+        </select></label>
+      <label>County:
+        <select name="s2_q9a_county">
+          <option value="">-- select --</option>
+          <option value="1">Mombasa</option>
+          <option value="2">Kwale</option>
+          <option value="3">Kilifi</option>
+          <option value="4">Tana River</option>
+          <option value="5">Lamu</option>
+          <option value="6">Taita Taveta</option>
+          <option value="7">Garissa</option>
+          <option value="8">Wajir</option>
+          <option value="9">Mandera</option>
+          <option value="10">Marsabit</option>
+          <option value="11">Isiolo</option>
+          <option value="12">Meru</option>
+          <option value="13">Tharaka-Nithi</option>
+          <option value="14">Embu</option>
+          <option value="15">Kitui</option>
+          <option value="16">Machakos</option>
+          <option value="17">Makueni</option>
+          <option value="18">Nyandarua</option>
+          <option value="19">Nyeri</option>
+          <option value="20">Kirinyaga</option>
+          <option value="21">Murang'a</option>
+          <option value="22">Kiambu</option>
+          <option value="23">Turkana</option>
+          <option value="24">West Pokot</option>
+          <option value="25">Samburu</option>
+          <option value="26">Trans Nzoia</option>
+          <option value="27">Uasin Gishu</option>
+          <option value="28">Elgeyo-Marakwet</option>
+          <option value="29">Nandi</option>
+          <option value="30">Baringo</option>
+          <option value="31">Laikipia</option>
+          <option value="32">Nakuru</option>
+          <option value="33">Narok</option>
+          <option value="34">Kajiado</option>
+          <option value="35">Kericho</option>
+          <option value="36">Bomet</option>
+          <option value="37">Kakamega</option>
+          <option value="38">Vihiga</option>
+          <option value="39">Bungoma</option>
+          <option value="40">Busia</option>
+          <option value="41">Siaya</option>
+          <option value="42">Kisumu</option>
+          <option value="43">Homa Bay</option>
+          <option value="44">Migori</option>
+          <option value="45">Kisii</option>
+          <option value="46">Nyamira</option>
+          <option value="47">Nairobi</option>
+        </select></label>
+      <label class="checkbox-label"><input name="urban" type="checkbox"> Urban household</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Employment</legend>
+      <label>Household employment rate (0–1, e.g. 0.5): <input name="hh_employment_rate" type="number" step="0.01" min="0" max="1"></label>
+      <label>Average hours worked (household): <input name="hh_avg_hours" type="number" step="0.1" min="0"></label>
+      <label class="checkbox-label"><input name="any_adult_employed" type="checkbox"> Any adult employed</label>
+      <label class="checkbox-label"><input name="any_adult_laidoff" type="checkbox"> Any adult laid off</label>
+      <label class="checkbox-label"><input name="any_migrant" type="checkbox"> Any migrant household member</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Housing</legend>
+      <label>Floor material:
+        <select name="s2_q19_floormat">
+          <option value="">-- select --</option>
+          <option value="1.0">Earth/Sand</option>
+          <option value="2.0">Dung</option>
+          <option value="3.0">Wood Planks/Shingles</option>
+          <option value="4.0">Palm/Bamboo</option>
+          <option value="5.0">Parquet or Polished Wood</option>
+          <option value="6.0">Vinyl or Asphalt Strips</option>
+          <option value="7.0">Ceramic Tiles</option>
+          <option value="8.0">Cement</option>
+          <option value="9.0">Carpet</option>
+        </select></label>
+      <label>Wall material:
+        <select name="s2_q20_wallmat">
+          <option value="">-- select --</option>
+          <option value="1.0">No walls</option>
+          <option value="2.0">Cane/Palm/Trunks</option>
+          <option value="3.0">Grass/Reeds</option>
+          <option value="4.0">Mud/Cow Dung</option>
+          <option value="5.0">Bamboo with mud</option>
+          <option value="6.0">Stone with mud</option>
+          <option value="7.0">Uncovered adobe</option>
+          <option value="8.0">Plywood</option>
+          <option value="9.0">Cardboard</option>
+          <option value="10.0">Reused wood</option>
+          <option value="11.0">Corrugated iron sheets</option>
+          <option value="12.0">Cement</option>
+          <option value="13.0">Stone with lime/cement</option>
+          <option value="14.0">Bricks</option>
+          <option value="15.0">Cement blocks</option>
+          <option value="16.0">Covered adobe</option>
+          <option value="17.0">Wood planks/shingles</option>
+          <option value="18.0">Tent/Canvas</option>
+        </select></label>
+      <label>Monthly rent (s5_q4_rent): <input name="s5_q4_rent" type="number" step="0.01" min="0"></label>
+      <label class="checkbox-label"><input name="s2_q21a_powergrid" type="checkbox"> Connected to power grid</label>
+      <label class="checkbox-label"><input name="s2_hasinternet" type="checkbox"> Has internet access</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Dependents</legend>
+      <label>Number of adults (s2_q21_noadults): <input name="s2_q21_noadults" type="number" min="0"></label>
+      <label>Number of school-age children (s2_q15b_schoolchildren): <input name="s2_q15b_schoolchildren" type="number" min="0"></label>
+      <label>Number of young children (s2_q15c_youngchildren): <input name="s2_q15c_youngchildren" type="number" min="0"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Farming</legend>
+      <p style="font-size: 0.9em; color: #555;">Leave "acres farmed" blank if the household does not farm.</p>
+      <label>Acres farmed (s4_q4_acres): <input name="s4_q4_acres" type="number" step="0.01" min="0"></label>
+      <label>Livestock value (s4_q9_livestockvalue): <input name="s4_q9_livestockvalue" type="number" step="0.01" min="0"></label>
+      <label>Number of enterprises (s4_q12_num_ent): <input name="s4_q12_num_ent" type="number" min="0"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Assets owned</legend>
+      <p style="font-size: 0.9em; color: #555;">Check each asset the household owns.</p>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_0"> Asset 0</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_1"> Asset 1</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_2"> Asset 2</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_3"> Asset 3</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_4"> Asset 4</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_5"> Asset 5</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_6"> Asset 6</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_7"> Asset 7</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_8"> Asset 8</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_9"> Asset 9</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_10"> Asset 10</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_13"> Asset 13</label>
+      <label class="checkbox-label"><input type="checkbox" name="ownasset_curr_14"> Asset 14</label>
+      <p style="font-size: 0.85em; color: #888;">
+        Note: replace these generic "Asset N" labels with the real asset names
+        (e.g. "Radio", "Bicycle", "Refrigerator") from your survey questionnaire
+        once you have them handy — the field names (ownasset_curr_0, etc.) must
+        stay exactly as-is since they map directly to the model's training columns.
+      </p>
+      <label>Sold assets recently:
+        <select name="s6_q1_soldasset">
+          <option value="">-- select --</option>
+          <option value="1">No</option>
+          <option value="2">Yes, sold livestock</option>
+          <option value="3">Yes, sold other assets</option>
+          <option value="2 3">Yes, sold both livestock and other assets</option>
+        </select></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Monthly expenditure (in local currency)</legend>
+      <label>Food (s5_q3a_food): <input name="s5_q3a_food" type="number" step="0.01" min="0"></label>
+      <label>Personal (s5_q3b_personal): <input name="s5_q3b_personal" type="number" step="0.01" min="0"></label>
+      <label>Durables (s5_q3c_durables): <input name="s5_q3c_durables" type="number" step="0.01" min="0"></label>
+      <label>Services (s5_q3d_services): <input name="s5_q3d_services" type="number" step="0.01" min="0"></label>
+      <label>Communications (s5_q3e_comms): <input name="s5_q3e_comms" type="number" step="0.01" min="0"></label>
+      <label>Housing (s5_q3f_housing): <input name="s5_q3f_housing" type="number" step="0.01" min="0"></label>
+      <label>Utilities (s5_q3g_utilities): <input name="s5_q3g_utilities" type="number" step="0.01" min="0"></label>
+      <label>Transport (s5_q3h_transport): <input name="s5_q3h_transport" type="number" step="0.01" min="0"></label>
+      <label>Medical (s5_q3i_medical): <input name="s5_q3i_medical" type="number" step="0.01" min="0"></label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Transfers / loans received</legend>
+      <label>Transfer value 1 (s7_q1a_value_ken): <input name="s7_q1a_value_ken" type="number" step="0.01" min="0"></label>
+      <label>Transfer value 2 (s7_q3a_value): <input name="s7_q3a_value" type="number" step="0.01" min="0"></label>
+      <label>Transfer value 3 (s7_q4a_value): <input name="s7_q4a_value" type="number" step="0.01" min="0"></label>
+      <label class="checkbox-label"><input name="s6_q2_tookloan" type="checkbox"> Took a loan recently</label>
+    </fieldset>
+
+    <fieldset>
+      <legend>Health</legend>
+      <label class="checkbox-label"><input name="s9_q4_hospitalvisit" type="checkbox"> Hospital visit in reference period</label>
+      <label class="checkbox-label"><input name="s9_q11_medsoutstock" type="checkbox"> Medicines were out of stock when needed</label>
+    </fieldset>
+
     <button type="submit">Screen household</button>
   </form>
+
   <pre id="out"></pre>
+
   <script>
+    const NUMBER_FIELDS = new Set([
+      "hhsize", "head_age", "hh_employment_rate", "hh_avg_hours", "s5_q4_rent",
+      "s2_q21_noadults", "s2_q15b_schoolchildren", "s2_q15c_youngchildren",
+      "s4_q4_acres", "s4_q9_livestockvalue", "s4_q12_num_ent",
+      "s5_q3a_food", "s5_q3b_personal", "s5_q3c_durables", "s5_q3d_services",
+      "s5_q3e_comms", "s5_q3f_housing", "s5_q3g_utilities", "s5_q3h_transport",
+      "s5_q3i_medical", "s7_q1a_value_ken", "s7_q3a_value", "s7_q4a_value"
+    ]);
+
+    const CHECKBOX_FIELDS = new Set([
+      "urban", "any_adult_employed", "any_adult_laidoff", "any_migrant",
+      "s2_q21a_powergrid", "s2_hasinternet", "s6_q2_tookloan",
+      "s9_q4_hospitalvisit", "s9_q11_medsoutstock",
+      "ownasset_curr_0", "ownasset_curr_1", "ownasset_curr_2", "ownasset_curr_3",
+      "ownasset_curr_4", "ownasset_curr_5", "ownasset_curr_6", "ownasset_curr_7",
+      "ownasset_curr_8", "ownasset_curr_9", "ownasset_curr_10",
+      "ownasset_curr_13", "ownasset_curr_14"
+    ]);
+
     document.getElementById('f').onsubmit = async (e) => {
       e.preventDefault();
-      const data = Object.fromEntries(new FormData(e.target));
-      const res = await fetch('/predict', {
-        method: 'POST', headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify(data)
-      });
-      document.getElementById('out').textContent = JSON.stringify(await res.json(), null, 2);
+      const form = e.target;
+      const payload = {};
+
+      for (const el of form.elements) {
+        if (!el.name) continue;
+
+        if (el.type === 'checkbox') {
+          payload[el.name] = el.checked ? 1 : 0;
+        } else if (NUMBER_FIELDS.has(el.name)) {
+          payload[el.name] = el.value === '' ? null : Number(el.value);
+        } else {
+          payload[el.name] = el.value === '' ? null : el.value;
+        }
+      }
+
+      const out = document.getElementById('out');
+      out.textContent = 'Screening...';
+
+      try {
+        const res = await fetch('/predict', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          out.textContent = `Error (${res.status}):\n${text}`;
+          return;
+        }
+
+        const data = await res.json();
+        out.textContent = JSON.stringify(data, null, 2);
+      } catch (err) {
+        out.textContent = `Request failed: ${err}`;
+      }
     };
   </script>
 </body>
