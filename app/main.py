@@ -145,5 +145,21 @@ async def predict_batch(file: UploadFile = File(...)):
         headers={"Content-Disposition": "attachment; filename=prioritized_households.csv"},
     )
 
+@app.get("/debug-columns")
+def debug_columns():
+    return {
+        "asset_cols": A["asset_cols"],
+        "exp_cols": A["exp_cols"],
+        "transfer_value_cols": A["transfer_value_cols"],
+        "cat_cols": A["cat_cols"],
+        "bin_cols": A["bin_cols"],
+        "num_cols": A["num_cols"],
+        "kept_cols": A["kept_cols"],
+    }
+
+
+@app.get("/debug-training-columns")
+def debug_training_columns():
+    return {"training_feature_columns": list(A["training_feature_columns"])}
 
 
