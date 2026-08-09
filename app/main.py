@@ -23,7 +23,7 @@ with open("model_artifacts.pkl", "wb") as f:
 
 Run that cell, download model_artifacts.pkl, and put it in app/ in your repo.
 
-A note on model choice for deployment: if your final model ended up being the weighted-average ensemble or the stacking model (rather than a single tuned XGBoost), bundle each fitted sub-model plus the blend weights instead of one final_model, and adjust the /predict handler in Step 2 to combine their predict_proba outputs the same way the notebook does. A single tuned XGBoost model — which is what won in this project — is simplest to deploy and is the version this manual assumes.
+
 
 File size check: GitHub blocks files over 100 MB (warns above ~50 MB). Tree models like these are usually a few MB, so you're almost certainly fine. If it's large, use Git LFS (git lfs track "*.pkl") before committing.
 
