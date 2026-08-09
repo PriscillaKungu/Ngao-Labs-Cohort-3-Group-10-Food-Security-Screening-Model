@@ -76,7 +76,7 @@ def preprocess_new_household(raw_data: pd.DataFrame) -> pd.DataFrame:
         processed_df[c] = processed_df[c].fillna("missing").astype(str) if c in processed_df.columns else "missing"
     X_cat = pd.get_dummies(processed_df[current_cat], prefix=current_cat, dtype=int)
 
-    county_series = processed_df["s2_q9a_county"].fillna("missing").astype(str)
+    county_series = processed_df["s2_q9a_county"].fillna(-1).astype(int)
     processed_df["county_insecurity_rate"] = county_series.map(A["county_rate_map"]).fillna(A["global_insecurity_rate"])
 
     final_df = pd.concat([
