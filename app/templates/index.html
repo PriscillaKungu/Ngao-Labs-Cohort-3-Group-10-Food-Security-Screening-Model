@@ -15,13 +15,32 @@
 </head>
 <body>
   <h2>Screen a household</h2>
-  <p>For bulk screening (recommended for caseworkers), POST a CSV to
-     <code>/predict-batch</code> instead — see the manual.</p>
+  <p>For bulk screening (recommended for caseworkers), upload a CSV below instead
+     of filling in the form for each household one at a time.</p>
+
+  <fieldset>
+    <legend>Bulk screening — upload a CSV</legend>
+    <p style="font-size:0.9em;color:#555;">
+      Upload a CSV where each row is one household and the columns use the same
+      field names as the form below (e.g. <code>hhsize</code>, <code>head_age</code>,
+      <code>ownasset_curr_1</code>, etc.). You'll get back the same CSV with a
+      <code>predicted_status</code> and <code>confidence</code> column added, sorted
+      so the most food-insecure households are listed first.
+    </p>
+    <form id="batch-form">
+      <label>CSV file: <input type="file" id="batch-file" name="file" accept=".csv" required></label>
+      <button type="submit">Screen households</button>
+    </form>
+    <p id="batch-status"></p>
+  </fieldset>
 
   <form id="f">
 
     <fieldset>
       <legend>Household basics</legend>
+      <label>Household ID
+        <span style="font-size:0.8em;color:#888;">(for your records only — not used by the model)</span>:
+        <input name="household_id" type="text" placeholder="e.g. HH-2024-0091"></label>
       <label>Household size: <input name="hhsize" type="number" min="1" required></label>
       <label>Head of household age: <input name="head_age" type="number" min="0" required></label>
       <label>Head of household age group:
@@ -291,6 +310,50 @@
         out.textContent = JSON.stringify(data, null, 2);
       } catch (err) {
         out.textContent = `Request failed: ${err}`;
+      }
+    };
+
+    document.getElementById('batch-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('batch-file');
+      const status = document.getElementById('batch-status');
+
+      if (!fileInput.files.length) {
+        status.textContent = 'Please choose a CSV file first.';
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('file', fileInput.files[0]);
+
+      status.textContent = 'Screening households, please wait...';
+
+      try {
+        const res = await fetch('/predict-batch', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          status.textContent = `Error (${res.status}): ${text}`;
+          return;
+        }
+
+        // The response is a CSV file -- trigger a download of it.
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'prioritized_households.csv';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+
+        status.textContent = 'Done — prioritized_households.csv has been downloaded.';
+      } catch (err) {
+        status.textContent = `Request failed: ${err}`;
       }
     };
   </script>
