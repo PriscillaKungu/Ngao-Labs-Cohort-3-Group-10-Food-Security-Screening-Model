@@ -123,6 +123,7 @@ def predict_single(payload: dict):
     result = score_households(raw_df)
     row = result.iloc[0]
     return JSONResponse({
+        "household_id": row.get("household_id"),
         "predicted_status": row["predicted_status"],
         "confidence": float(row["confidence"]),
     })
