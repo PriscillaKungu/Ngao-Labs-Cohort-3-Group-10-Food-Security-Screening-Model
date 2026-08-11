@@ -326,6 +326,11 @@
       const formData = new FormData();
       formData.append('file', fileInput.files[0]);
 
+      // Build "prioritized_<original name>.csv" from whatever was uploaded,
+      // e.g. "C5_for_Screening.csv" -> "prioritized_C5_for_Screening.csv"
+      const originalName = fileInput.files[0].name.replace(/\.csv$/i, '');
+      const outputName = `prioritized_${originalName}.csv`;
+
       status.textContent = 'Screening households, please wait...';
 
       try {
@@ -345,13 +350,13 @@
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'prioritized_households.csv';
+        a.download = outputName;
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
 
-        status.textContent = 'Done — prioritized_households.csv has been downloaded.';
+        status.textContent = `Done — ${outputName} has been downloaded.`;
       } catch (err) {
         status.textContent = `Request failed: ${err}`;
       }
