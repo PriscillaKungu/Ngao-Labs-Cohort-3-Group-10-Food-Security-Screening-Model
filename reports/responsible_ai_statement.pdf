@@ -1,0 +1,58 @@
+Responsible AI Statement
+Predicting Household Food Insecurity in Kenya — Ngao Labs FDSAI Capstone, Group 10
+1. Who does this system affect?
+Three groups are affected in different ways. (a) Users: caseworkers or programme staff at an NGO or
+government agency who would view the model's output and decide how to act on it. (b) Decision
+subjects: individual Kenyan households whose survey responses feed the model and who would be
+classified by it — most of whom would never know a model had been applied to their data. (c)
+Voiceless affected parties: households in counties and population segments underrepresented in the
+Wave 4 phone survey sample — for instance, households without any phone access, who cannot
+appear in a phone-survey-derived dataset at all, and whose needs this model is structurally unable to
+represent.
+2. What is the worst plausible outcome?
+A severely food-insecure rural household is missed by the model and excluded from a prioritisation list
+during a resource-constrained response, because the model's recall on the severely-insecure class is
+measurably lower for rural households (45.9%) than urban households (58.1%). Equally concrete: a
+genuinely food-secure household is flagged as severely insecure — this happened to 62 of 489 truly
+food-secure households in the test set, nearly as many as the 64 severe cases the model correctly
+caught — diverting scarce aid away from those who need it most.
+3. Who bears the cost of errors?
+The cost falls almost entirely on the households being classified, not on the organisation deploying the
+model or the person who built it. A missed severely-insecure household bears the direct cost of
+continued food insecurity; a false-flagged food-secure household bears no direct harm but contributes
+to misallocated resources at another household's expense. This asymmetry means model errors
+should be monitored through their effect on the people scored, not through aggregate accuracy alone.
+4. What redress mechanism exists?
+None at present. This is a capstone research project with no operational deployment, and no appeal
+mechanism exists for anyone scored by it. If it were adopted operationally, we propose that any
+household excluded from assistance on the basis of this model's output should have the right to
+request a human follow-up visit or interview within a fixed window (e.g. 14 days), and that county-level
+programme staff — not the model — should retain final authority over eligibility decisions.
+5. How will the model be monitored? 
+The model was trained on data collected in 2020–2021 during the COVID-19 economic shock. Its
+patterns should not be assumed to transfer unchanged to a different kind of shock (e.g. a
+climate-driven flood event) or to a different time period. Before any real use, we recommend
+re-evaluating macro F1 and the urban/rural and county-level disaggregated tables against more recent
+data, and withdrawing or retraining the model if overall macro F1 falls below 0.40 or if the urban–rural
+severe-class recall gap widens beyond its current 12 percentage points.
+Fairness Criterion Applied
+We applied Equal Opportunity: among households that are truly severely food insecure, the model
+should identify an equal proportion regardless of urban or rural status. We chose this over
+Demographic Parity because the goal is finding genuine need, not equal predicted-positive rates; and
+over strict Equalized Odds because false negatives (missed need) are more serious here than false
+positives (misdirected aid). By this standard the model currently falls short: severe-class recall is 58.1%
+for urban households versus 45.9% for rural households, a gap that would need to close before this
+model could be considered fair for operational targeting.
+Disaggregated Findings
+Subgroup N Macro F1 Weighted F1 Severe-class recall
+Urban 523 0.469 0.563 0.581
+Rural 456 0.436 0.507 0.459
+Full results, including county-level breakdowns, are reported in notebooks/04_evaluation.ipynb.
+Counties with adequate test-set size (N ≥ 20) range from macro F1 of 0.247 to 0.670, indicating
+substantial geographic variation not captured by the urban/rural split alone.
+Datasheet Summary
+This dataset represents Kenyan households reachable by phone during a national COVID-19
+rapid-response survey in 2020–2021, and therefore underrepresents households without phone access
+or in areas with poor network coverage at the time, and cannot reflect any household dynamics that
+changed since collection — including effects of subsequent climate shocks this model was never
+trained to recognise.
