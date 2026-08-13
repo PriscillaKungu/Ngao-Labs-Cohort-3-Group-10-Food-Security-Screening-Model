@@ -19,7 +19,7 @@ License: Research use only; redistribution not permitted. Raw files are not incl
 ## Methods
 1. EDA: notebooks/01_eda.ipynb
    Loaded and merged household and adult-level tables, constructed the FISS-    based target, and explored its relationship to demographics, housing, and     geography
-2. Preprocess: norebooks/02_preprocessing.ipynb
+2. Preprocess: notebooks/02_preprocessing.ipynb
      Engineered features covering assets, farming/livestock, enterprise activity, transfers, expenditure shares, and dependency ratio
    Screened candidate features for excessive missingness
    one-hot encoded categoricals
